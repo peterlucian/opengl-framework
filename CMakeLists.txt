@@ -38,6 +38,7 @@ target_include_directories(OpenGLMinesweeper PRIVATE
      ${PROJECT_SOURCE_DIR}/external/glad/include
      ${PROJECT_SOURCE_DIR}/external/stb_image
      ${PROJECT_SOURCE_DIR}/external/glm
+     ${PROJECT_SOURCE_DIR}/framework/include/core
 )
 
 target_link_libraries(OpenGLMinesweeper PRIVATE

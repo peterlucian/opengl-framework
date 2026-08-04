@@ -11,6 +11,7 @@
 #include "graphics/Shader.h"
 #include "graphics/Renderer.h"
 #include "graphics/Texture.h"
+#include "window.h"
 
 #include "stb_image.h"
 
@@ -25,7 +26,7 @@
 #include <utility>
 #include <vector>
 
-void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+//void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 //void processInput(GLFWwindow *window);
 
 // settings
@@ -260,41 +261,44 @@ int main()
 {
     // glfw: initialize and configure
     // ------------------------------
-    glfwInit();
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+//     glfwInit();
+//     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+//     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+//     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-#ifdef __APPLE__
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-#endif
+// #ifdef __APPLE__
+//     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+// #endif
 
-    // glfw window creation
-    // --------------------
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
-    if (window == NULL)
-    {
-        std::cout << "Failed to create GLFW window" << std::endl;
-        glfwTerminate();
-        return -1;
-    }
-    glfwMakeContextCurrent(window);
-    glfwSwapInterval(1);
-    glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+//     // glfw window creation
+//     // --------------------
+//     GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
+//     if (window == NULL)
+//     {
+//         std::cout << "Failed to create GLFW window" << std::endl;
+//         glfwTerminate();
+//         return -1;
+//     }
+//     glfwMakeContextCurrent(window);
+//     glfwSwapInterval(1);
+//     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-    // Set the mouse button callback
-    glfwSetMouseButtonCallback(window, mouse_button_callback);
+//     // Set the mouse button callback
+//     glfwSetMouseButtonCallback(window, mouse_button_callback);
 
-    // glad: load all OpenGL function pointers
-    // ---------------------------------------
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    {
-        std::cout << "Failed to initialize GLAD" << std::endl;
-        return -1;
-    }
+//     // glad: load all OpenGL function pointers
+//     // ---------------------------------------
+//     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+//     {
+//         std::cout << "Failed to initialize GLAD" << std::endl;
+//         return -1;
+//     }
     
-    {
 
+{
+    
+        window* win_ = new window(SCR_WIDTH, SCR_HEIGHT, "Minesweeper"); 
+        auto window_ = win_->create();
         
         placeMemes(10);
         calculateMemeCounts();
@@ -440,7 +444,7 @@ int main()
 
         // render loop
         // -----------
-        while (!glfwWindowShouldClose(window))
+        while (!glfwWindowShouldClose(window_))
         {
             // input
             // -----
@@ -505,7 +509,7 @@ int main()
             // r += increment;
             // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
             // -------------------------------------------------------------------------------
-            glfwSwapBuffers(window);
+            glfwSwapBuffers(window_);
             glfwPollEvents();
         }
 
@@ -528,10 +532,10 @@ int main()
 
 // glfw: whenever the window size changed (by OS or user resize) this callback function executes
 // ---------------------------------------------------------------------------------------------
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-    // make sure the viewport matches the new window dimensions; note that width and 
-    // height will be significantly larger than specified on retina displays.
-    glViewport(0, 0, width, height);
-}
+// void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+// {
+//     // make sure the viewport matches the new window dimensions; note that width and 
+//     // height will be significantly larger than specified on retina displays.
+//     glViewport(0, 0, width, height);
+// }
 
