@@ -11,7 +11,11 @@
 #include "graphics/Shader.h"
 #include "graphics/Renderer.h"
 #include "graphics/Texture.h"
+
+#include "engine.h"
 #include "window.h"
+
+
 
 #include "stb_image.h"
 
@@ -256,6 +260,14 @@ unsigned int load_textures(){
     return texArrayId;
 }
 
+// glfw: whenever the window size changed (by OS or user resize) this callback function executes
+// ---------------------------------------------------------------------------------------------
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+    // make sure the viewport matches the new window dimensions; note that width and 
+    // height will be significantly larger than specified on retina displays.
+    glViewport(0, 0, width, height);
+}
 
 int main()
 {
@@ -283,9 +295,8 @@ int main()
 //     glfwSwapInterval(1);
 //     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
-//     // Set the mouse button callback
-//     glfwSetMouseButtonCallback(window, mouse_button_callback);
-
+    // Set the mouse button callback
+    //glfwSetMouseButtonCallback(window, mouse_button_callback);
 //     // glad: load all OpenGL function pointers
 //     // ---------------------------------------
 //     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -295,11 +306,30 @@ int main()
 //     }
     
 
-{
+//{
     
-        window* win_ = new window(SCR_WIDTH, SCR_HEIGHT, "Minesweeper"); 
-        auto window_ = win_->create();
+        Engine engine;
+
+        if (!engine.Init())
+            return -1;
+
+        Window window(640, 640, "Minesweeper");
+
+        if (!window.Create())
+            return -1;
+
+        // while (!window.ShouldClose())
+        // {
+        //     window.SwapBuffers();
+        //     window.PollEvents();
+        // }
+
         
+        
+        window.SetMouseButtonCallback(mouse_button_callback);
+        window.SetFramebufferSizeCallback(framebuffer_size_callback);
+
+
         placeMemes(10);
         calculateMemeCounts();
 
@@ -444,7 +474,7 @@ int main()
 
         // render loop
         // -----------
-        while (!glfwWindowShouldClose(window_))
+        while (!window.ShouldClose())
         {
             // input
             // -----
@@ -509,16 +539,17 @@ int main()
             // r += increment;
             // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
             // -------------------------------------------------------------------------------
-            glfwSwapBuffers(window_);
-            glfwPollEvents();
-        }
+            window.SwapBuffers();
+            window.PollEvents();
+        //}
 
         // optional: de-allocate all resources once they've outlived their purpose:
         // ------------------------------------------------------------------------
         // glfw: terminate, clearing all previously allocated GLFW resources.
         // ------------------------------------------------------------------
     }
-    glfwTerminate();
+    //glfwTerminate();
+    engine.Shutdown();
     return 0;
 }
 
@@ -530,12 +561,5 @@ int main()
 //         glfwSetWindowShouldClose(window, true);
 // }
 
-// glfw: whenever the window size changed (by OS or user resize) this callback function executes
-// ---------------------------------------------------------------------------------------------
-// void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-// {
-//     // make sure the viewport matches the new window dimensions; note that width and 
-//     // height will be significantly larger than specified on retina displays.
-//     glViewport(0, 0, width, height);
-// }
+
 

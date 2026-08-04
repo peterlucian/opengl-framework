@@ -3,71 +3,82 @@
 
     extern void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
 
-    window::window(int width, int height, const std::string &title)
+    Window::Window(int width, int height, const std::string &title)
         : width_(width), height_(height), title_(title), is_open_(false) {}
 
-    bool window::isOpen() const {
+    Window::~Window() {
+        
+        if (m_Window)
+            glfwDestroyWindow(m_Window);
+         
+        glfwTerminate();
+    }
+
+    bool Window::isOpen() const {
         return is_open_;
     }
 
-    void    framebuffer_size_callback(GLFWwindow* window, int width, int height)
-        {
-            // make sure the viewport matches the new window dimensions; note that width and 
-            // height will be significantly larger than specified on retina displays.
-            glViewport(0, 0, width, height);
-        }
+    // void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+    //     {
+    //         // make sure the viewport matches the new window dimensions; note that width and 
+    //         // height will be significantly larger than specified on retina displays.
+    //         glViewport(0, 0, width, height);
+    //     }
 
 
-
-    GLFWwindow* window::create()
+    GLFWwindow* Window::GetNativeWindow() const
     {
-        if (!glfwInit())
-        {
-            std::cout << "Failed to initialize GLFW\n";
-            return nullptr;
-        }
+        return m_Window;
+    }
 
+    bool Window::Create()
+    {
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-        GLFWwindow* window_ = glfwCreateWindow(
+        m_Window = glfwCreateWindow(
             width_,
             height_,
             title_.c_str(),
             nullptr,
-            nullptr
-        );
+            nullptr);
 
-        if (!window_)
-        {
-            std::cout << "Failed to create GLFW window\n";
-            glfwTerminate();
-            return nullptr;
-        }
+        if (!m_Window)
+            return false;
 
-        glfwMakeContextCurrent(window_);
-
-        glfwSetFramebufferSizeCallback(window_, framebuffer_size_callback);
-        glfwSetMouseButtonCallback(window_, mouse_button_callback);
+        glfwMakeContextCurrent(m_Window);
 
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-        {
-            std::cout << "Failed to initialize GLAD\n";
-            return nullptr;
-        }
+            return false;
 
-        return window_;
+        return true;
+
     }
 
+    bool Window::ShouldClose() const
+    {
+        return glfwWindowShouldClose(m_Window);
+    }
 
+    void Window::SetFramebufferSizeCallback(GLFWframebuffersizefun callback)
+    {
+        glfwSetFramebufferSizeCallback(m_Window, callback);
+    }
 
+    void Window::SetMouseButtonCallback(GLFWmousebuttonfun callback)
+    {
+        glfwSetMouseButtonCallback(m_Window, callback);
+    }
 
-    // GLFWwindow* window::getWindow() {
-    //     if (window_ == nullptr) {
-    //         std::cout << "Failed to create GLFW window" << std::endl;
-    //         glfwTerminate();
-    //     } else {
-    //         return window_;
-    //     }
-    // }
+    void Window::PollEvents()
+    {
+        glfwPollEvents();
+    }
+
+    void Window::SwapBuffers()
+    {
+        glfwSwapBuffers(m_Window);
+    }
+
+    

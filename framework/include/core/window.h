@@ -5,17 +5,25 @@
 #include <glad.h>
 #include <GLFW/glfw3.h>
 
-class window {
+class Window {
 public:
-    window(int width, int height, const std::string &title);
-    ~window();
+    Window(int width, int height, const std::string &title);
+    ~Window();
 
     //GLFWwindow* window_ = nullptr;
 
     void open();
     void close();
     bool isOpen() const;
-    GLFWwindow* create();
+    bool Create();
+    bool ShouldClose() const;
+
+    void SwapBuffers();
+    void PollEvents();
+
+    GLFWwindow* GetNativeWindow() const;
+    void SetMouseButtonCallback(GLFWmousebuttonfun callback);
+    void SetFramebufferSizeCallback(GLFWframebuffersizefun callback);
     //GLFWwindow* getWindow();
     int getWidth() const;
     int getHeight() const;
@@ -23,6 +31,8 @@ public:
     void setTitle(const std::string &title);
 
 private:
+    GLFWwindow* m_Window = nullptr;
+
     int width_;
     int height_;
     std::string title_;
