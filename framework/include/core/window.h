@@ -5,6 +5,8 @@
 #include <glad.h>
 #include <GLFW/glfw3.h>
 
+#include "input.h"
+
 class Window {
 public:
     Window(int width, int height, const std::string &title);
