@@ -8,10 +8,10 @@
         : width_(width), height_(height), title_(title), is_open_(false) {}
 
     Window::~Window() {
-        
+
         if (m_Window)
             glfwDestroyWindow(m_Window);
-         
+
         glfwTerminate();
     }
 
@@ -21,7 +21,7 @@
 
     // void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     //     {
-    //         // make sure the viewport matches the new window dimensions; note that width and 
+    //         // make sure the viewport matches the new window dimensions; note that width and
     //         // height will be significantly larger than specified on retina displays.
     //         glViewport(0, 0, width, height);
     //     }
@@ -48,9 +48,12 @@
         if (!m_Window)
             return false;
 
-        glfwSetFramebufferSizeCallback(m_Window, FramebufferSizeCallback);
 
         glfwMakeContextCurrent(m_Window);
+        // Store the Window object inside the GLFWwindow
+        //glfwSetWindowUserPointer(m_Window, this);
+
+        glfwSetFramebufferSizeCallback(m_Window, FramebufferSizeCallback);
 
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
             return false;
@@ -64,8 +67,13 @@
         return glfwWindowShouldClose(m_Window);
     }
 
-    void Window::FramebufferSizeCallback(GLFWwindow*, int width, int height)
+    void Window::FramebufferSizeCallback(GLFWwindow* window, int width, int height)
     {
+        // auto* self = static_cast<Window*>(glfwGetWindowUserPointer(window));
+
+        // self->width_ = width;
+        // self->height_ = height;
+
         glViewport(0, 0, width, height);
     }
 
@@ -79,5 +87,4 @@
         glfwSwapBuffers(m_Window);
     }
 
-   
-    
+
