@@ -48,6 +48,8 @@
         if (!m_Window)
             return false;
 
+        glfwSetFramebufferSizeCallback(m_Window, FramebufferSizeCallback);
+
         glfwMakeContextCurrent(m_Window);
 
         if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -62,14 +64,9 @@
         return glfwWindowShouldClose(m_Window);
     }
 
-    void Window::SetFramebufferSizeCallback(GLFWframebuffersizefun callback)
+    void Window::FramebufferSizeCallback(GLFWwindow*, int width, int height)
     {
-        glfwSetFramebufferSizeCallback(m_Window, callback);
-    }
-
-    void Window::SetMouseButtonCallback(GLFWmousebuttonfun callback)
-    {
-        glfwSetMouseButtonCallback(m_Window, callback);
+        glViewport(0, 0, width, height);
     }
 
     void Window::PollEvents()

@@ -24,8 +24,6 @@ public:
     void PollEvents();
 
     GLFWwindow* GetNativeWindow() const;
-    void SetMouseButtonCallback(GLFWmousebuttonfun callback);
-    void SetFramebufferSizeCallback(GLFWframebuffersizefun callback);
     //GLFWwindow* getWindow();
     int getWidth() const;
     int getHeight() const;
@@ -34,6 +32,8 @@ public:
 
 private:
     GLFWwindow* m_Window = nullptr;
+
+    static void FramebufferSizeCallback(GLFWwindow*, int width, int height);
 
     int width_;
     int height_;
