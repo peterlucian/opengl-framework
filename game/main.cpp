@@ -30,347 +30,46 @@
 #include <utility>
 #include <vector>
 
-//void framebuffer_size_callback(GLFWwindow* window, int width, int height);
-//void processInput(GLFWwindow *window);
 
-// settings
-const unsigned int SCR_WIDTH = 640;
-const unsigned int SCR_HEIGHT = 640;
+// unsigned int load_textures(){
+//     unsigned int texArrayId;
+//     glGenTextures(1, &texArrayId);
+//     glBindTexture(GL_TEXTURE_2D_ARRAY, texArrayId);
+//     //glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_RGBA8, 128, 128, 12);
 
-const unsigned int GRID_WIDTH = 10;
-const unsigned int GRID_HEIGHT = 10;
-const float cellWidth = 50.0f;
-const float cellHeight = 50.0f;
+//     // Specify the storage for the texture array
+//     glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, 128, 128, 12, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 
+//     for (int i=0; i < 12; i++){
+//         int width, height, channels;
+//         stbi_set_flip_vertically_on_load(true);
+//         //std::cout << filesPath[i] << std::endl;
+//         unsigned char* data = stbi_load(filesPath[i], &width, &height, &channels, STBI_rgb_alpha);
 
-enum class Key
-{
-    Space,
-    Escape,
-    W,
-    A,
-    S,
-    D
-};
+//         glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, 128, 128, 1, GL_RGBA, GL_UNSIGNED_BYTE, data);
 
-enum class MouseButton
-{
-    Left,
-    Right,
-    Middle
-};
-
-enum CellState {
-    HIDDEN,
-    REVEALED,
-    MEME,
-    FLAGGED
-};
-
-struct Cell {
-    CellState state = CellState::HIDDEN;
-    bool isMeme = false;  // Whether this cell contains a meme
-    int neighboringMemeCount = 0;  // Number of memes in adjacent cells
-    bool dirty;
-};
-
-struct Vertex {
-    glm::vec2 position;
-    glm::vec2 texCoords;  // Assuming you have texture coordinates too
-    float textureID;
-};
-
-Cell grid[GRID_HEIGHT][GRID_WIDTH];
-
-bool firstClick = false;
-
-std::vector<const char *> filesPath = {
-        "assets/zero.png", // For 0 adjacent memes
-        "assets/one.png",  // For 1 adjacent meme
-        "assets/two.png",  // For 2 adjacent memes
-        "assets/three.png",  // For 3 adjacent memes
-        "assets/four.png", // For 4 adjacent memes
-        "assets/five.png",  // For 5 adjacent memes
-        "assets/six.png", // For 6 adjacent memes
-        "assets/seven.png",  // For 7 adjacent memes
-        "assets/eight.png",  // For 8 adjacent memes
-        "assets/hidden.png",
-        "assets/flag.png",
-        "assets/mine.png",
-    };
-
-void calculateMemeCounts() {
-    // Directions for the 8 neighboring cells
-    const int dx[] = {-1, -1, -1,  0, 0, 1, 1, 1};
-    const int dy[] = {-1,  0,  1, -1, 1, -1, 0, 1};
-
-    for (int y = 0; y < GRID_HEIGHT; ++y) {
-        for (int x = 0; x < GRID_WIDTH; ++x) {
-            // Skip cells that are memes
-            if (grid[y][x].isMeme) continue;
-
-            // Check the 8 neighboring cells
-            for (int i = 0; i < 8; ++i) {
-                int nx = x + dx[i];
-                int ny = y + dy[i];
-
-                // Ensure the neighbor is within the grid bounds
-                if (nx >= 0 && nx < GRID_WIDTH && ny >= 0 && ny < GRID_HEIGHT) {
-                    if (grid[ny][nx].isMeme) {
-                        grid[y][x].neighboringMemeCount++;
-                    }
-                }
-            }
-        }
-    }
-}
-
-    // void placeMemes(int numMemes) {
-    //     int placedMemes = 0;
-    //     std::srand(std::time(nullptr));
-    //     while (placedMemes < numMemes) {
-    //         int x = std::rand() % GRID_WIDTH;
-    //         int y = std::rand() % GRID_HEIGHT;
-
-    //         // If there's no meme at this position, place one
-    //         if (!grid[y][x].isMeme) {
-    //             grid[y][x].isMeme = true;
-    //             placedMemes++;
-    //         }
-    //     }
-    // }
-
-    void placeMemes(int numMemes, int safeX, int safeY)
-    {
-        int placedMemes = 0;
-        std::srand(std::time(nullptr));
-
-        while (placedMemes < numMemes)
-        {
-            int x = std::rand() % GRID_WIDTH;
-            int y = std::rand() % GRID_HEIGHT;
-
-            // Don't place a bomb on the first clicked cell
-            if (std::abs(x - safeX) <= 1 &&
-                std::abs(y - safeY) <= 1)
-            {
-                continue;
-            }
-
-            if (!grid[y][x].isMeme)
-            {
-                grid[y][x].isMeme = true;
-                placedMemes++;
-            }
-        }
-    }
-
-    glm::ivec2 GetClickedCell()
-    {
-        glm::vec2 mouse = Input::GetMousePosition();
-
-        int cellSize = 50;
-        int gridSize = 500;
-        int windowSize = 640;
-        int offset = (windowSize - gridSize) / 2;
-
-        mouse.y = windowSize - mouse.y;
-
-        mouse.x -= offset;
-        mouse.y -= offset;
-
-        return {
-            static_cast<int>(mouse.x) / cellSize,
-            static_cast<int>(mouse.y) / cellSize
-        };
-    }
-
-    bool IsInsideBoard(glm::ivec2 cell)
-    {
-        return cell.x >= 0 &&
-            cell.x < GRID_WIDTH &&
-            cell.y >= 0 &&
-            cell.y < GRID_HEIGHT;
-    }
+//         stbi_image_free(data);
+//     }
 
 
-    void RevealFirstArea(int x, int y)
-    {
-         // Check if the starting position is safe
-            if (grid[y][x].isMeme){
+//     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+//     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+//     //glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_R, GL_REPEAT);
+//     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
+//     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-                return; // Or reposition the meme at this point
-            }
-
-            // Use a queue for breadth-first search (BFS) to reveal neighboring squares
-            std::queue<std::pair<int, int>> toReveal;
-            toReveal.push({x, y});
-
-            while (!toReveal.empty()) {
-                auto [cx, cy] = toReveal.front();
-                toReveal.pop();
-
-                // Check bounds
-                if (cx < 0 || cx >= GRID_WIDTH || cy < 0 || cy >= GRID_HEIGHT)
-                    continue;
-
-                // If the cell is already revealed or is a meme, skip it
-                if (grid[cy][cx].state == CellState::REVEALED || grid[cy][cx].isMeme)
-                    continue;
-
-                // Reveal the cell
-                grid[cy][cx].state = CellState::REVEALED;
-
-                // Mark the cell as dirty
-                grid[cy][cx].dirty = true;
-
-                // Count neighboring memes
-                int memeCount = grid[cy][cx].neighboringMemeCount;
-
-
-                // If no adjacent memes, reveal neighbors
-                if (memeCount == 0) {
-                    // Add neighboring cells to the queue
-                    for (int offsetY = -1; offsetY <= 1; ++offsetY) {
-                        for (int offsetX = -1; offsetX <= 1; ++offsetX) {
-                            if (offsetX == 0 && offsetY == 0) continue;  // Skip the current cell
-                            toReveal.push({cx + offsetX, cy + offsetY});
-                        }
-                    }
-
-                }
-            }
-
-        firstClick = true;
-
-    }
-
-    void HandleLeftClick(int x, int y)
-    {
-        std::cout << "Left click\n";
-
-        grid[y][x].state = CellState::FLAGGED;
-        grid[y][x].dirty = true;
-    }
-
-    void HandleRightClick(int x, int y)
-    {
-        std::cout << "Right click\n";
-
-        if (grid[y][x].isMeme)
-            grid[y][x].state = CellState::MEME;
-        else
-            grid[y][x].state = CellState::REVEALED;
-
-        grid[y][x].dirty = true;
-    }
-
-void HandleMouseClick()
-{
-    glm::ivec2 cell = GetClickedCell();
-
-    if (!IsInsideBoard(cell))
-        return;
-
-    // if (!firstClick)
-    // {
-    //     RevealFirstArea(cell.x, cell.y);
-    //     return;
-    // }
-
-    if (!firstClick)
-    {
-        placeMemes(10, cell.x, cell.y);
-        calculateMemeCounts();
-
-        RevealFirstArea(cell.x, cell.y);
-
-        firstClick = true;
-        return;
-    }
-    if (Input::IsMouseButtonPressed(GLFW_MOUSE_BUTTON_LEFT))
-        HandleLeftClick(cell.x, cell.y);
-
-    if (Input::IsMouseButtonPressed(GLFW_MOUSE_BUTTON_RIGHT))
-        HandleRightClick(cell.x, cell.y);
-}
-
-
-unsigned int load_textures(){
-    unsigned int texArrayId;
-    glGenTextures(1, &texArrayId);
-    glBindTexture(GL_TEXTURE_2D_ARRAY, texArrayId);
-    //glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, GL_RGBA8, 128, 128, 12);
-
-    // Specify the storage for the texture array
-    glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_RGBA8, 128, 128, 12, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-
-    for (int i=0; i < 12; i++){
-        int width, height, channels;
-        stbi_set_flip_vertically_on_load(true);
-        //std::cout << filesPath[i] << std::endl;
-        unsigned char* data = stbi_load(filesPath[i], &width, &height, &channels, STBI_rgb_alpha);
-
-        glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, i, 128, 128, 1, GL_RGBA, GL_UNSIGNED_BYTE, data);
-
-        stbi_image_free(data);
-    }
-
-
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    //glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_R, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    return texArrayId;
-}
+//     return texArrayId;
+// }
 
 int main()
 {
-    // glfw: initialize and configure
-    // ------------------------------
-//     glfwInit();
-//     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-//     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-//     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-// #ifdef __APPLE__
-//     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-// #endif
-
-//     // glfw window creation
-//     // --------------------
-//     GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
-//     if (window == NULL)
-//     {
-//         std::cout << "Failed to create GLFW window" << std::endl;
-//         glfwTerminate();
-//         return -1;
-//     }
-//     glfwMakeContextCurrent(window);
-//     glfwSwapInterval(1);
-//     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
-
-    // Set the mouse button callback
-    //glfwSetMouseButtonCallback(window, mouse_button_callback);
-//     // glad: load all OpenGL function pointers
-//     // ---------------------------------------
-//     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-//     {
-//         std::cout << "Failed to initialize GLAD" << std::endl;
-//         return -1;
-//     }
-
-
-//{
 
         Engine engine;
 
         if (!engine.Init())
             return -1;
 
-        Window window(640, 640, "Minesweeper");
+        Window window(640, 640, "Pong");
 
         if (!window.Create())
             return -1;
@@ -394,15 +93,7 @@ int main()
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glDisable(GL_DEPTH_TEST);
 
-        for (size_t y = 0; y < GRID_HEIGHT; y++)
-        {
-            for (size_t x = 0; x < GRID_WIDTH; x++)
-            {
-                std::cout << " grid cell [ " << y << ", " << x << " ] " << grid[y][x].neighboringMemeCount << ", "<< grid[y][x].isMeme << std::endl;
-            }
-
-        }
-
+       
         // float vertices[] = {
         //     -250.0f,  -250.0f,   0.0f, 0.0f, // left
         //     -200.0f,  -250.0f,   1.0f, 0.0f, // right
@@ -416,101 +107,57 @@ int main()
         //     2, 3, 0
         // };
 
-        glm::vec2 quadVertices[] = {
-            {-250.0f,  -250.0f},  // Bottom-left
-            {-200.0f,  -250.0f},  // Bottom-right
-            {-200.0f,  -200.0f},  // Top-right
-            {-250.0f,  -200.0f}  // Top-left
+        // glm::vec2 quadVertices[] = {
+        //     {-0.0f,  -25.0f},  // Bottom-left
+        //     {-0.0f,  -25.0f},  // Bottom-right
+        //     {-25.0f,  -0.0f},  // Top-right
+        //     {-25.0f,  -0.0f}  // Top-left
+        // };
+
+         glm::vec2 quadVertices[] =
+        {
+            {-10.0f, -50.0f}, // bottom-left
+            { 10.0f, -50.0f}, // bottom-right
+            { 10.0f,  50.0f}, // top-right
+            {-10.0f,  50.0f}  // top-left
         };
-
-         glm::vec2 quadTextureIndices[] = {
-            {0.0f, 0.0f},  // Bottom-left
-            {1.0f, 0.0f},  // Bottom-right
-            {1.0f, 1.0f},  // Top-right
-            {0.0f, 1.0f}  // Top-left
+        unsigned int indices[] =
+        {
+            0, 1, 2,
+            2, 3, 0
         };
-
-        glm::vec2 offsets[GRID_WIDTH * GRID_HEIGHT];
-
-        for (int y = 0; y < GRID_HEIGHT; y++) {
-            for (int x = 0; x < GRID_WIDTH; x++) {
-                offsets[y * GRID_WIDTH + x] = glm::vec2(x * cellWidth, y * cellHeight);  // Position each cell in the grid
-            }
-        }
-
-        std::vector<Vertex> finalVertexBuffer;
-
-        for (int y = 0; y < GRID_HEIGHT; ++y) {
-            for (int x = 0; x < GRID_WIDTH; ++x) {
-                // Get the offset for the current grid cell
-                glm::vec2 gridOffset = offsets[y * GRID_WIDTH + x];
-
-                // For each quad vertex, add the offset to the local quad position
-                for (int i = 0; i < 4; ++i) {  // Assuming 4 vertices per quad
-                    Vertex v;
-                    v.position = quadVertices[i] + gridOffset;  // Add offset to quad vertex
-                    v.texCoords = quadTextureIndices[i]; /* Set appropriate texture coordinates here */
-                    v.textureID = 9.0f;
-                    finalVertexBuffer.push_back(v);
-                }
-            }
-        }
-
-        std::vector<unsigned int> indices;
-        int quadIndexOffset = 0;
-
-        for (int y = 0; y < GRID_HEIGHT; ++y) {
-            for (int x = 0; x < GRID_WIDTH; ++x) {
-                // Add indices for each quad
-                indices.push_back(quadIndexOffset + 0);
-                indices.push_back(quadIndexOffset + 1);
-                indices.push_back(quadIndexOffset + 2);
-                indices.push_back(quadIndexOffset + 2);
-                indices.push_back(quadIndexOffset + 3);
-                indices.push_back(quadIndexOffset + 0);
-
-                // Move the offset to the next set of vertices (each quad has 4 vertices)
-                quadIndexOffset += 4;
-            }
-        }
-
+        
+        
 
 
         //Create the vertex Array and vertex Buffer
-        VertexArray va;
         //VertexBuffer vb (vertices, 4 * 4 * sizeof(float));
-        //VertexBuffer vb( &finalVertexBuffer, ( 4 * 4 + 4 ) * GRID_WIDTH * GRID_HEIGHT  * sizeof(float), true );
-        VertexBuffer vb( &finalVertexBuffer[0], 5 * finalVertexBuffer.size()  * sizeof(float));
+        VertexBuffer vb(&quadVertices[0], 4 * sizeof(glm::vec2) * sizeof(float));
+        VertexArray va;
 
         // Create the vertex array layout and bind the buffer and the layout
         VertexBufferLayout layout;
         //layout.push(2, VALUETYPE::FLOAT);
         //layout.push(2, VALUETYPE::FLOAT);
         layout.Push<float>(2);
-        layout.Push<float>(2);
-        layout.Push<float>(1);
         va.AddBuffer(vb, layout);
+        
+        IndexBuffer ibo(indices, 6);
 
-        //IndexBuffer ibo( indices.data(), GRID_HEIGHT * GRID_WIDTH * 6);
-        IndexBuffer ibo( &indices[0], indices.size());
-
-        //glm::mat4 proj = glm::ortho(-2.0f, 2.0f, -1.5f, 1.5f);
-        glm::mat4 proj = glm::ortho(-320.0f, 320.0f, -320.0f, 320.0f, -1.0f, 1.0f);
+       
 
         Shader shader("assets/basic.shader");
         //shader.SetUniform4f("u_Color", 1.0f, 0.5f, 0.2f, 1.0f);
-
-        unsigned int textures = load_textures();
-
-
         shader.Bind();
+        glm::mat4 proj = glm::ortho(
+            -320.0f, 320.0f,
+            -320.0f, 320.0f,
+            -1.0f, 1.0f
+        );
+
         shader.SetUniformMat4f("u_MVP", proj);
-        shader.Bind();
+        
 
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D_ARRAY, textures);
-
-        shader.SetUniform1i("textureArray", 0);
 
 
         // note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
@@ -528,110 +175,29 @@ int main()
         // GLintptr offset = 0 * sizeof(Vertex);
         // glBufferSubData(GL_ARRAY_BUFFER, offset, sizeof(Vertex), &finalVertexBuffer[0]);
 
-        bool previousLeft = false;
-        bool previousRight = false;
+        
         // render loop
         // -----------
         while (!window.ShouldClose())
         {
-            // input
-            // -----
-            //processInput(window);
-            // render
-            // ------
 
             bool left = Input::IsMouseButtonPressed(GLFW_MOUSE_BUTTON_LEFT);
             bool right = Input::IsMouseButtonPressed(GLFW_MOUSE_BUTTON_RIGHT);
-
-            if ((left && !previousLeft) || (right && !previousRight))
-            {
-                HandleMouseClick();
-            }
-
-            previousLeft = left;
-            previousRight = right;
-
 
             renderer.Clear();
 
             shader.Bind();
 
-
-            // glActiveTexture(GL_TEXTURE0);
-            // glBindTexture(GL_TEXTURE_2D_ARRAY, textures);
-
-            for (int y = 0; y < GRID_HEIGHT; ++y) {
-                for (int x = 0; x < GRID_WIDTH; ++x) {
-                    Cell &cell = grid[y][x];
-                    int cellIndex = y * GRID_WIDTH + x;
-                    int firstVertexIndex = cellIndex * 4; // 4 vertices per quad
-                    // Set the texture based on the cell state
-                    if (cell.dirty){
-
-                        if (cell.state == CellState::REVEALED) {
-                            for (int i = 0; i < 4; ++i) {
-                                finalVertexBuffer[firstVertexIndex + i].textureID = static_cast<float>(cell.neighboringMemeCount); // Or whichever texture ID you need
-                            }
-                        }
-                        if (cell.state == CellState::FLAGGED) {
-                            for (int i = 0; i < 4; ++i) {
-                                finalVertexBuffer[firstVertexIndex + i].textureID = 10.0f;
-                            }
-                        }
-                        if (cell.state == CellState::MEME) {
-                            for (int i = 0; i < 4; ++i) {
-                                finalVertexBuffer[firstVertexIndex + i].textureID = 11.0f;
-                            }
-                        }
-
-                        // Update the buffer using glBufferSubData
-                        GLintptr offset = cellIndex * 5 * sizeof(float);
-                        va.Bind();
-                        vb.Bind();
-                        glBufferSubData(GL_ARRAY_BUFFER, firstVertexIndex * sizeof(Vertex), 4 * sizeof(Vertex), &finalVertexBuffer[firstVertexIndex]);
-                        std::cout << "cell index" << cellIndex << "yx" << y << x << std::endl;
-                        std::cout << "offset" << offset << "vertex size" << sizeof(Vertex) << std::endl;
-                        // Reset the dirty flag
-                        cell.dirty = false;
-
-                    }
-                 }
-            }
-
-
-            // draw our first triangle
-
             renderer.Draw(va, ibo, shader);
 
-            // if (r > 1.0f)
-            //     increment = -0.05f;
-            // else if (r < 0.0f)
-            //     increment = 0.05f;
-
-            // r += increment;
-            // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-            // -------------------------------------------------------------------------------
             window.SwapBuffers();
             window.PollEvents();
-        //}
+                
+        }
 
-        // optional: de-allocate all resources once they've outlived their purpose:
-        // ------------------------------------------------------------------------
-        // glfw: terminate, clearing all previously allocated GLFW resources.
-        // ------------------------------------------------------------------
-    }
-    //glfwTerminate();
     engine.Shutdown();
     return 0;
 }
-
-// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
-// ---------------------------------------------------------------------------------------------------------
-// void processInput(GLFWwindow *window)
-// {
-//     if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-//         glfwSetWindowShouldClose(window, true);
-// }
 
 
 
