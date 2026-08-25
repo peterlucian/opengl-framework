@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(OpenGLMinesweeper VERSION 1.0 LANGUAGES C CXX)
+project(OpenGLPong VERSION 1.0 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -25,7 +25,7 @@ set(STB_SOURCE
     external/stb_image/stb_image.cpp
 )
 
-add_executable(OpenGLMinesweeper
+add_executable(OpenGLPong
     ${FRAMEWORK_SOURCES}
     ${GAME_SOURCES}
     ${GLAD_SOURCE}
@@ -33,7 +33,7 @@ add_executable(OpenGLMinesweeper
 )
 
 
-target_include_directories(OpenGLMinesweeper PRIVATE
+target_include_directories(OpenGLPong PRIVATE
      ${PROJECT_SOURCE_DIR}/framework/include/
      ${PROJECT_SOURCE_DIR}/external/glad/include
      ${PROJECT_SOURCE_DIR}/external/stb_image
@@ -41,13 +41,13 @@ target_include_directories(OpenGLMinesweeper PRIVATE
      ${PROJECT_SOURCE_DIR}/framework/include/core
 )
 
-target_link_libraries(OpenGLMinesweeper PRIVATE
+target_link_libraries(OpenGLPong PRIVATE
     glfw
     OpenGL::GL
 )
 
-add_custom_command(TARGET OpenGLMinesweeper POST_BUILD
+add_custom_command(TARGET OpenGLPong POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${PROJECT_SOURCE_DIR}/assets/
-        $<TARGET_FILE_DIR:OpenGLMinesweeper>/assets/
+        $<TARGET_FILE_DIR:OpenGLPong>/assets/
 )
